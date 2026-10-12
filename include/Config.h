@@ -65,3 +65,7 @@ private:
 }
 
 #endif // CONFIG_H
+
+#ifndef REGISTER_TIMES
+#define REGISTER_TIMES
+#endif

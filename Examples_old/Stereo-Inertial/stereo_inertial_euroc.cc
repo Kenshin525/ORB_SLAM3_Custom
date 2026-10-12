@@ -170,7 +170,7 @@ int main(int argc, char **argv)
         double t_rect = 0.f;
         double t_resize = 0.f;
         double t_track = 0.f;
-        int num_rect = 0;
+
         int proccIm = 0;
         for(int ni=0; ni<nImages[seq]; ni++, proccIm++)
         {

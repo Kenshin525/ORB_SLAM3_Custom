@@ -184,6 +184,12 @@ void Viewer::Run()
     pangolin::Var<bool> menuShowInertialGraph("menu.Show Inertial Graph",true,true);
     pangolin::Var<bool> menuLocalizationMode("menu.Localization Mode",false,true);
     pangolin::Var<bool> menuReset("menu.Reset",false,false);
+
+    // Trajectory recording controls. They do not stop SLAM.
+    pangolin::Var<bool> menuStartSaveTrajectory("menu.Start Save Trajectory",false,false);
+    pangolin::Var<bool> menuStopSaveTrajectory("menu.Stop Save Trajectory",false,false);
+
+    // Safe whole-program Stop: post a request only.
     pangolin::Var<bool> menuStop("menu.Stop",false,false);
     pangolin::Var<bool> menuStepByStep("menu.Step By Step",false,true);  // false, true
     pangolin::Var<bool> menuStep("menu.Step",false,false);
@@ -338,6 +344,18 @@ void Viewer::Run()
         cv::imshow("ORB-SLAM3: Current Frame",toShow);
         cv::waitKey(mT);
 
+        if(menuStartSaveTrajectory)
+        {
+            mpSystem->RequestStartTrajectoryRecording();
+            menuStartSaveTrajectory = false;
+        }
+
+        if(menuStopSaveTrajectory)
+        {
+            mpSystem->RequestStopTrajectoryRecording();
+            menuStopSaveTrajectory = false;
+        }
+
         if(menuReset)
         {
             menuShowGraph = true;
@@ -353,18 +371,9 @@ void Viewer::Run()
             mpSystem->ResetActiveMap();
             menuReset = false;
         }
-
         if(menuStop)
         {
-            if(bLocalizationMode)
-                mpSystem->DeactivateLocalizationMode();
-
-            // Stop all threads
-            mpSystem->Shutdown();
-
-            // Save camera trajectory
-            mpSystem->SaveTrajectoryEuRoC("CameraTrajectory.txt");
-            mpSystem->SaveKeyFrameTrajectoryEuRoC("KeyFrameTrajectory.txt");
+            mpSystem->RequestApplicationStop();
             menuStop = false;
         }
 

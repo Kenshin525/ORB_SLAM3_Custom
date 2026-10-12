@@ -26,6 +26,7 @@
 #include<stdlib.h>
 #include<string>
 #include<thread>
+#include <atomic>
 #include<opencv2/core/core.hpp>
 
 #include "Tracking.h"
@@ -140,6 +141,23 @@ public:
     void Shutdown();
     bool isShutDown();
 
+    // GUI trajectory recording commands. The Viewer only posts commands;
+    // the RGB-D main thread consumes them and performs file I/O.
+    enum TrajectoryRecordCommand
+    {
+        TRAJECTORY_RECORD_NONE = 0,
+        TRAJECTORY_RECORD_START = 1,
+        TRAJECTORY_RECORD_STOP = 2,
+        TRAJECTORY_APP_STOP = 3
+    };
+
+    void RequestStartTrajectoryRecording();
+    void RequestStopTrajectoryRecording();
+    void RequestApplicationStop();
+    int ConsumeTrajectoryRecordCommand();
+    void SetTrajectoryRecordingState(bool recording);
+    bool IsTrajectoryRecording() const;
+
     // Save camera trajectory in the TUM RGB-D dataset format.
     // Only for stereo and RGB-D. This method does not work for monocular.
     // Call first Shutdown()
@@ -248,6 +266,10 @@ private:
 
     // Shutdown flag
     bool mbShutDown;
+
+    // Lightweight Viewer -> tracking-thread bridge for trajectory recording.
+    std::atomic<int> mTrajectoryRecordCommand;
+    std::atomic<bool> mbTrajectoryRecording;
 
     // Tracking state
     int mTrackingState;

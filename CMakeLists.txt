@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
 project(ORB_SLAM3)
+add_definitions(-DREGISTER_TIMES)
 
 IF(NOT CMAKE_BUILD_TYPE)
   SET(CMAKE_BUILD_TYPE Release)
@@ -14,10 +15,10 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -march=native")
 
 # Check C++11 or C++0x support
 include(CheckCXXCompilerFlag)
-CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
+CHECK_CXX_COMPILER_FLAG("-std=c++14" COMPILER_SUPPORTS_CXX11)
 CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
 if(COMPILER_SUPPORTS_CXX11)
-   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
    add_definitions(-DCOMPILEDWITHC11)
    message(STATUS "Using flag -std=c++11.")
 elseif(COMPILER_SUPPORTS_CXX0X)
@@ -149,6 +150,22 @@ if(realsense2_FOUND)
     add_executable(rgbd_realsense_D435i
             Examples/RGB-D/rgbd_realsense_D435i.cc)
     target_link_libraries(rgbd_realsense_D435i ${PROJECT_NAME})
+
+    add_executable(rgbd_realsense_D400_auto
+            Examples/RGB-D/rgbd_realsense_D400_auto.cc)
+    target_link_libraries(rgbd_realsense_D400_auto ${PROJECT_NAME})
+
+    add_executable(rgbd_realsense_D400_auto_v2
+            Examples/RGB-D/rgbd_realsense_D400_auto_v2.cc)
+    target_link_libraries(rgbd_realsense_D400_auto_v2 ${PROJECT_NAME})
+
+    add_executable(rgbd_realsense_D400_auto_v3
+            Examples/RGB-D/rgbd_realsense_D400_auto_v3.cc)
+    target_link_libraries(rgbd_realsense_D400_auto_v3 ${PROJECT_NAME})
+
+    add_executable(rgbd_realsense_D400_auto_v4
+            Examples/RGB-D/rgbd_realsense_D400_auto_v4.cc)
+    target_link_libraries(rgbd_realsense_D400_auto_v4 ${PROJECT_NAME})
 endif()
 
 
@@ -388,3 +405,21 @@ if(realsense2_FOUND)
             Examples_old/Stereo-Inertial/stereo_inertial_realsense_D435i.cc)
     target_link_libraries(stereo_inertial_realsense_D435i_old ${PROJECT_NAME})
 endif()
+
+# ===== RGBD_AUTO_FULL_BEGIN =====
+set(OrbbecSDK_DIR "/opt/OrbbecSDK_v2.9.3/lib")
+set(depthai_DIR "/usr/local/lib/cmake/depthai")
+find_package(OrbbecSDK REQUIRED)
+find_package(depthai CONFIG REQUIRED)
+
+add_executable(rgbd_auto_gemini336 Examples/RGB-D/rgbd_auto_gemini336.cc)
+target_link_libraries(rgbd_auto_gemini336 ${PROJECT_NAME} ob::OrbbecSDK)
+
+add_executable(rgbd_auto_astra Examples/RGB-D/rgbd_auto_astra.cc)
+target_include_directories(rgbd_auto_astra PRIVATE "/opt/orbbec-openni2/OpenNI_2.3.0.86_202210111154_4c8f5aa4_beta6_linux/sdk/Include")
+target_link_libraries(rgbd_auto_astra ${PROJECT_NAME} "/opt/orbbec-openni2/OpenNI_2.3.0.86_202210111154_4c8f5aa4_beta6_linux/tools/NiViewer/libOpenNI2.so")
+set_target_properties(rgbd_auto_astra PROPERTIES BUILD_RPATH "/opt/orbbec-openni2/OpenNI_2.3.0.86_202210111154_4c8f5aa4_beta6_linux/tools/NiViewer")
+
+add_executable(rgbd_auto_oakd_pro Examples/RGB-D/rgbd_auto_oakd_pro.cc)
+target_link_libraries(rgbd_auto_oakd_pro ${PROJECT_NAME} depthai::core)
+# ===== RGBD_AUTO_FULL_END =====

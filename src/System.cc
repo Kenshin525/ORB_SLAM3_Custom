@@ -41,7 +41,8 @@ Verbose::eLevel Verbose::th = Verbose::VERBOSITY_NORMAL;
 System::System(const string &strVocFile, const string &strSettingsFile, const eSensor sensor,
                const bool bUseViewer, const int initFr, const string &strSequence):
     mSensor(sensor), mpViewer(static_cast<Viewer*>(NULL)), mbReset(false), mbResetActiveMap(false),
-    mbActivateLocalizationMode(false), mbDeactivateLocalizationMode(false), mbShutDown(false)
+    mbActivateLocalizationMode(false), mbDeactivateLocalizationMode(false), mbShutDown(false),
+    mTrajectoryRecordCommand(0), mbTrajectoryRecording(false)
 {
     // Output welcome message
     cout << endl <<
@@ -564,6 +565,36 @@ void System::Shutdown()
 bool System::isShutDown() {
     unique_lock<mutex> lock(mMutexReset);
     return mbShutDown;
+}
+
+void System::RequestStartTrajectoryRecording()
+{
+    mTrajectoryRecordCommand.store(TRAJECTORY_RECORD_START);
+}
+
+void System::RequestStopTrajectoryRecording()
+{
+    mTrajectoryRecordCommand.store(TRAJECTORY_RECORD_STOP);
+}
+
+
+void System::RequestApplicationStop()
+{
+    mTrajectoryRecordCommand.store(TRAJECTORY_APP_STOP);
+}
+int System::ConsumeTrajectoryRecordCommand()
+{
+    return mTrajectoryRecordCommand.exchange(TRAJECTORY_RECORD_NONE);
+}
+
+void System::SetTrajectoryRecordingState(bool recording)
+{
+    mbTrajectoryRecording.store(recording);
+}
+
+bool System::IsTrajectoryRecording() const
+{
+    return mbTrajectoryRecording.load();
 }
 
 void System::SaveTrajectoryTUM(const string &filename)
